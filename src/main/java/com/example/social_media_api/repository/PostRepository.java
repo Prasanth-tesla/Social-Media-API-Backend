@@ -15,4 +15,12 @@ public interface PostRepository extends JpaRepository<Post, Long>{
         WHERE p.postId = :postId
     """)
     void incrementLikeCount(@Param("postId") long postId);
+
+    @Modifying
+    @Query("""
+        UPDATE Post p
+        SET p.shareCount = p.shareCount + 1
+        WHERE p.postId = :postId
+    """)
+    void incrementShareCount(@Param("postId") long postId);
 }
