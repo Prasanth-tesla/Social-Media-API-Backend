@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.social_media_api.entity.Like;
+import com.example.social_media_api.entity.LikeId;
 import com.example.social_media_api.repository.LikeRepository;
 import com.example.social_media_api.repository.PostRepository;
 
@@ -30,5 +31,21 @@ public class LikeService {
         likeRepository.flush();
 
         return likeRepository.findById(savedLike.getId()).orElseThrow();
+    }
+
+    @Transactional
+    public boolean deleteLike(long postId, long userId) {
+
+        LikeId likeId = new LikeId(postId, userId);
+
+        if (!likeRepository.existsById(likeId)) {
+            return false;
+        }
+
+        likeRepository.deleteById(likeId);
+
+        postRepository.decrementLikeCount(postId);
+
+        return true;
     }
 }

@@ -1,11 +1,16 @@
 package com.example.social_media_api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.service.FollowerService;
+
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -22,4 +27,19 @@ public class FollowerController {
         return followerService.createFollower(follower);
     }
     
+    @DeleteMapping
+    public ResponseEntity<String> deleteFollower(
+        @RequestParam long followerId,
+        @RequestParam long followingId) {
+
+        boolean deleted = followerService.deleteFollower(followerId, followingId);
+
+        if (!deleted) {
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Follow relationship not found");
+        }
+
+        return ResponseEntity.ok("Unfollowed successfully");
+    }
 }

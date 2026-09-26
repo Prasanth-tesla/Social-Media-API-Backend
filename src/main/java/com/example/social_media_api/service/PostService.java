@@ -1,5 +1,7 @@
 package com.example.social_media_api.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,5 +20,9 @@ public class PostService {
         postRepository.flush();
 
         return postRepository.findById(savedPost.getPostId()).orElseThrow();
+    }
+
+    public List<Post> getPostsByUserId(long userId) {
+        return postRepository.findByUserId(userId);
     }
 }
