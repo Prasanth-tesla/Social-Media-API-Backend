@@ -4,7 +4,10 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity 
@@ -12,7 +15,16 @@ import jakarta.persistence.Table;
 public class User {
     
     @Id
-    private long userId;
+    @GeneratedValue(
+        strategy = GenerationType.SEQUENCE,
+        generator = "user_id_generator"
+    )
+    @SequenceGenerator(
+        name = "user_id_generator",
+        sequenceName = "user_id_seq",
+        allocationSize = 1
+    )
+    private Long userId;
 
     private String userName;
 
@@ -33,12 +45,15 @@ public class User {
     @Column(name = "created_at", insertable = false, updatable = false)
     private LocalDate createdAt;
 
+    @Column(name = "post_count", insertable = false, updatable = false)
+    private Integer postCount;
+
     public User() {
     }
 
     // getters
 
-    public long getUserId() { return userId; }
+    public Long getUserId() { return userId; }
 
     public String getUserName() { return userName; }
 
@@ -56,9 +71,9 @@ public class User {
 
     public LocalDate getCreatedAt() { return createdAt; }
 
-    // setters
+    public Integer getPostCount() { return postCount; }
 
-    public void setUserId(long userId) { this.userId = userId; }
+    // setters
 
     public void setUserName(String userName) { this.userName = userName; }
 
@@ -69,11 +84,5 @@ public class User {
     public void setEmail(String email) { this.email = email; }
 
     public void setPassword(String password) { this.password = password; }
-
-    public void setFollowerCount(Integer followerCount) { this.followerCount = followerCount; }
-
-    public void setFollowingCount(Integer followingCount) { this.followingCount = followingCount; }
-
-    public void setCreatedAt(LocalDate createdAt) { this.createdAt = createdAt; }
 
 }
