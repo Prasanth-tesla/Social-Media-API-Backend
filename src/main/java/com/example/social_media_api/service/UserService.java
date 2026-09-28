@@ -3,7 +3,9 @@ package com.example.social_media_api.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
 
 import com.example.social_media_api.entity.User;
 import com.example.social_media_api.repository.UserRepository;
@@ -36,7 +38,16 @@ public class UserService {
     }
 
     public User updateUserName(long userId, String userName) {
+        Authentication authentication = SecurityContextHolder.getContext()
+                                                            .getAuthentication();
 
+        Long authenticatedUserId =
+                (Long) authentication.getPrincipal();
+        
+        if (!authenticatedUserId.equals(userId)) {
+            throw new RuntimeException("You can only update your own profile");
+        }
+        
         User user = userRepository.findById(userId)
                 .orElseThrow(() ->
                     new RuntimeException("User not found"));

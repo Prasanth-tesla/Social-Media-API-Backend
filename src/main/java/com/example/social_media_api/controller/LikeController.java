@@ -1,10 +1,14 @@
 package com.example.social_media_api.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import com.example.social_media_api.dto.LikeResponse;
 import com.example.social_media_api.entity.Like;
 import com.example.social_media_api.service.LikeService;
 
@@ -35,5 +39,12 @@ public class LikeController {
         }
 
         return ResponseEntity.ok("Like removed successfully");
+    }
+
+    @GetMapping
+    public List<LikeResponse> getLikesByUserId(
+            @RequestParam long userId) {
+
+        return likeService.getLikesByUserId(userId);
     }
 }
