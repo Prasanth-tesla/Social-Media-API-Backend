@@ -1,12 +1,14 @@
 package com.example.social_media_api.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,5 +54,18 @@ public class UserController {
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
+    }
+
+    @PutMapping
+    public ResponseEntity<User> updateUserName(
+            @RequestParam long userId,
+            @RequestBody Map<String, String> request) {
+
+        String userName = request.get("userName");
+
+        User updatedUser =
+                userService.updateUserName(userId, userName);
+
+        return ResponseEntity.ok(updatedUser);
     }
 }

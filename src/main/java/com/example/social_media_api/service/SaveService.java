@@ -23,10 +23,6 @@ public class SaveService {
 
         saveRepository.save(save);
 
-        postRepository.incrementSaveCount(
-            save.getId().getPostId()
-        );
-
         return saveRepository.findById(save.getId()).orElseThrow();
     }
 
@@ -40,8 +36,6 @@ public class SaveService {
         }
 
         saveRepository.deleteById(saveId);
-
-        postRepository.decrementSaveCount(postId);
 
         return true;
     }

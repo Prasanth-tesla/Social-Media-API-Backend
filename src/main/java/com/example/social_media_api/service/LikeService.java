@@ -24,10 +24,6 @@ public class LikeService {
 
         Like savedLike = likeRepository.save(like);
 
-        postRepository.incrementLikeCount(
-            like.getId().getPostId()
-        );
-
         likeRepository.flush();
 
         return likeRepository.findById(savedLike.getId()).orElseThrow();
@@ -43,8 +39,6 @@ public class LikeService {
         }
 
         likeRepository.deleteById(likeId);
-
-        postRepository.decrementLikeCount(postId);
 
         return true;
     }

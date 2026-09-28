@@ -22,10 +22,6 @@ public class ShareService {
 
         shareRepository.save(share);
 
-        postRepository.incrementShareCount(
-            share.getPostId()
-        );
-
         return share;
     }
 }

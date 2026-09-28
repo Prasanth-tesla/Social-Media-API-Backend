@@ -1,8 +1,12 @@
 package com.example.social_media_api.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.social_media_api.dto.FollowerResponse;
 import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.entity.FollowerId;
 import com.example.social_media_api.repository.FollowerRepository;
@@ -23,14 +27,6 @@ public class FollowerService {
 
         Follower savedFollower = followerRepository.save(follower);
 
-        userRepository.incrementFollowingCount(
-            follower.getId().getFollowerId()
-        );
-
-        userRepository.incrementFollowerCount(
-            follower.getId().getFollowingId()
-        );
-
         return savedFollower;
     }
     
@@ -46,10 +42,36 @@ public class FollowerService {
 
         followerRepository.deleteById(followerKey);
 
-        userRepository.decrementFollowingCount(followerId);
-
-        userRepository.decrementFollowerCount(followingId);
-
         return true;
+    }
+
+    public List<FollowerResponse> getFollowers(long userId) {
+
+    return followerRepository.findFollowersByUserId(userId)
+            .stream()
+            .map(row -> new FollowerResponse(
+                    ((Number) row[0]).longValue(),
+                    (String) row[1],
+                    ((Number) row[2]).longValue(),
+                    ((Number) row[3]).longValue(),
+                    ((Number) row[4]).longValue(),
+                    ((LocalDateTime) row[5]).toLocalDate()
+            ))
+            .toList();
+    }
+
+    public List<FollowerResponse> getFollowing(long userId) {
+
+        return followerRepository.findFollowingByUserId(userId)
+                .stream()
+                .map(row -> new FollowerResponse(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1],
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue(),
+                        ((Number) row[4]).longValue(),
+                        ((LocalDateTime) row[5]).toLocalDate()
+                ))
+                .toList();
     }
 }
