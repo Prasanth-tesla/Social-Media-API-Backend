@@ -1,13 +1,14 @@
 package com.example.social_media_api.service;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.social_media_api.dto.LikeRequest;
 import com.example.social_media_api.dto.LikeResponse;
 import com.example.social_media_api.entity.Like;
 import com.example.social_media_api.entity.LikeId;
@@ -15,29 +16,17 @@ import com.example.social_media_api.entity.Post;
 import com.example.social_media_api.repository.LikeRepository;
 import com.example.social_media_api.repository.PostRepository;
 
-import org.springframework.transaction.annotation.Transactional;
-
 @Service
 public class LikeService {
 
     @Autowired
     private LikeRepository likeRepository;
-
+    
     @Autowired
     private PostRepository postRepository;
 
     @Transactional
-    public Like createLike(Like like) {
-
-        Like savedLike = likeRepository.save(like);
-
-        likeRepository.flush();
-
-        return likeRepository.findById(savedLike.getId()).orElseThrow();
-    }
-
-    @Transactional
-    public boolean deleteLike(long postId, long userId) {
+    public void createLike(LikeRequest request) {
 
         Authentication authentication =
                 SecurityContextHolder
@@ -47,13 +36,34 @@ public class LikeService {
         Long authenticatedUserId =
                 (Long) authentication.getPrincipal();
 
-        if (!authenticatedUserId.equals(userId)) {
-            throw new RuntimeException(
-                    "You can only delete your own likes"
-            );
-        }
+        LikeId likeId =
+                new LikeId(
+                        request.getPostId(),
+                        authenticatedUserId
+                );
 
-        LikeId likeId = new LikeId(postId, userId);
+        Like like = new Like();
+        like.setId(likeId);
+
+        likeRepository.save(like);
+    }
+
+    @Transactional
+    public boolean deleteLike(long postId) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        Long authenticatedUserId =
+                (Long) authentication.getPrincipal();
+
+        LikeId likeId =
+                new LikeId(
+                        postId,
+                        authenticatedUserId
+                );
 
         if (!likeRepository.existsById(likeId)) {
             return false;
@@ -64,7 +74,7 @@ public class LikeService {
         return true;
     }
 
-    public List<LikeResponse> getLikesByUserId(long userId) {
+    public List<LikeResponse> getMyLikes() {
 
         Authentication authentication =
                 SecurityContextHolder
@@ -74,27 +84,26 @@ public class LikeService {
         Long authenticatedUserId =
                 (Long) authentication.getPrincipal();
 
-        if (!authenticatedUserId.equals(userId)) {
-            throw new RuntimeException(
-                    "You can only view your own likes"
-            );
-        }
+        List<Like> likes =
+                likeRepository.findLikesByUserId(
+                        authenticatedUserId
+                );
 
-        return likeRepository.findLikesByUserId(userId)
-                .stream()
+        return likes.stream()
                 .map(like -> {
 
-                    long postId = like.getId().getPostId();
+                        Post post =
+                                postRepository
+                                        .findById(
+                                        like.getId().getPostId()
+                                        )
+                                        .orElseThrow();
 
-                    Post post = postRepository.findById(postId)
-                            .orElseThrow(() ->
-                                    new RuntimeException("Post not found"));
-
-                    return new LikeResponse(
-                            like.getCreatedAt(),
-                            post
-                    );
+                        return new LikeResponse(
+                                like.getCreatedAt(),
+                                post
+                        );
                 })
                 .toList();
-    }
+        }
 }
