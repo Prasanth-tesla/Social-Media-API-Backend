@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.social_media_api.dto.ApiResponse;
 import com.example.social_media_api.dto.FollowerResponse;
 import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.service.FollowerService;
@@ -48,20 +49,32 @@ public class FollowerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FollowerResponse>> getFollowers(
+    public ResponseEntity<ApiResponse<List<FollowerResponse>>> getFollowers(
             @RequestParam long userId) {
 
+        List<FollowerResponse> followers =
+                followerService.getFollowers(userId);
+
         return ResponseEntity.ok(
-            followerService.getFollowers(userId)
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        followers
+                )
         );
     }
 
     @GetMapping("/following")
-    public ResponseEntity<List<FollowerResponse>> getFollowing(
+    public ResponseEntity<ApiResponse<List<FollowerResponse>>> getFollowing(
             @RequestParam long userId) {
 
+        List<FollowerResponse> following =
+                followerService.getFollowing(userId);
+
         return ResponseEntity.ok(
-            followerService.getFollowing(userId)
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        following
+                )
         );
     }
 }

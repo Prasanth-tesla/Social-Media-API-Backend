@@ -12,18 +12,13 @@ import com.example.social_media_api.dto.LikeRequest;
 import com.example.social_media_api.dto.LikeResponse;
 import com.example.social_media_api.entity.Like;
 import com.example.social_media_api.entity.LikeId;
-import com.example.social_media_api.entity.Post;
 import com.example.social_media_api.repository.LikeRepository;
-import com.example.social_media_api.repository.PostRepository;
 
 @Service
 public class LikeService {
 
     @Autowired
     private LikeRepository likeRepository;
-    
-    @Autowired
-    private PostRepository postRepository;
 
     @Transactional
     public void createLike(LikeRequest request) {
@@ -84,26 +79,8 @@ public class LikeService {
         Long authenticatedUserId =
                 (Long) authentication.getPrincipal();
 
-        List<Like> likes =
-                likeRepository.findLikesByUserId(
-                        authenticatedUserId
-                );
-
-        return likes.stream()
-                .map(like -> {
-
-                        Post post =
-                                postRepository
-                                        .findById(
-                                        like.getId().getPostId()
-                                        )
-                                        .orElseThrow();
-
-                        return new LikeResponse(
-                                like.getCreatedAt(),
-                                post
-                        );
-                })
-                .toList();
-        }
+        return likeRepository.findLikeResponsesByUserId(
+                authenticatedUserId
+        );
+    }
 }

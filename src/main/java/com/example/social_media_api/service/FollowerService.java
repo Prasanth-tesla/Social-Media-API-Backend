@@ -1,5 +1,6 @@
 package com.example.social_media_api.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.social_media_api.dto.FollowerResponse;
+import com.example.social_media_api.dto.UserSummary;
 import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.entity.FollowerId;
 import com.example.social_media_api.repository.FollowerRepository;
@@ -47,31 +49,59 @@ public class FollowerService {
 
     public List<FollowerResponse> getFollowers(long userId) {
 
-    return followerRepository.findFollowersByUserId(userId)
-            .stream()
-            .map(row -> new FollowerResponse(
-                    ((Number) row[0]).longValue(),
-                    (String) row[1],
-                    ((Number) row[2]).longValue(),
-                    ((Number) row[3]).longValue(),
-                    ((Number) row[4]).longValue(),
-                    ((LocalDateTime) row[5]).toLocalDate()
-            ))
-            .toList();
+        return followerRepository.findFollowersByUserId(userId)
+                .stream()
+                .map(row -> {
+
+                    LocalDate followCreatedAt =
+                        ((LocalDateTime) row[0])
+                                .toLocalDate();
+
+                    UserSummary user =
+                            new UserSummary(
+                                    ((Number) row[1]).longValue(),
+                                    (String) row[2],
+                                    ((Number) row[3]).longValue(),
+                                    ((Number) row[4]).longValue(),
+                                    ((Number) row[5]).longValue(),
+                                    ((LocalDateTime) row[6])
+                                        .toLocalDate()
+                            );
+
+                    return new FollowerResponse(
+                            followCreatedAt,
+                            user
+                    );
+                })
+                .toList();
     }
 
     public List<FollowerResponse> getFollowing(long userId) {
 
         return followerRepository.findFollowingByUserId(userId)
                 .stream()
-                .map(row -> new FollowerResponse(
-                        ((Number) row[0]).longValue(),
-                        (String) row[1],
-                        ((Number) row[2]).longValue(),
-                        ((Number) row[3]).longValue(),
-                        ((Number) row[4]).longValue(),
-                        ((LocalDateTime) row[5]).toLocalDate()
-                ))
+                .map(row -> {
+
+                    LocalDate followCreatedAt =
+                            ((LocalDateTime) row[0])
+                                    .toLocalDate();
+
+                    UserSummary user =
+                            new UserSummary(
+                                    ((Number) row[1]).longValue(),
+                                    (String) row[2],
+                                    ((Number) row[3]).longValue(),
+                                    ((Number) row[4]).longValue(),
+                                    ((Number) row[5]).longValue(),
+                                    ((LocalDateTime) row[6])
+                                            .toLocalDate()
+                            );
+
+                    return new FollowerResponse(
+                            followCreatedAt,
+                            user
+                    );
+                })
                 .toList();
     }
 }
