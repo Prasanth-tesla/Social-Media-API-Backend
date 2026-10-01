@@ -13,39 +13,29 @@ public interface FollowerRepository
         extends JpaRepository<Follower, FollowerId> {
 
     @Query(value = """
-        SELECT
-            f.created_at,
-            u.user_id,
-            u.user_name,
-            u.follower_count,
-            u.following_count,
-            u.post_count,
-            u.created_at
-        FROM followers f
-        JOIN users u
-            ON u.user_id = f.follower_id
-        WHERE f.following_id = :userId
-        ORDER BY f.created_at
-        """, nativeQuery = true)
+    SELECT
+        u.user_id,
+        u.user_name
+    FROM users u
+    JOIN followers f
+        ON u.user_id = f.follower_id
+    WHERE f.following_id = :userId
+    ORDER BY f.created_at
+    """, nativeQuery = true)
     List<Object[]> findFollowersByUserId(
             @Param("userId") long userId
     );
 
     @Query(value = """
-        SELECT
-            f.created_at,
-            u.user_id,
-            u.user_name,
-            u.follower_count,
-            u.following_count,
-            u.post_count,
-            u.created_at
-        FROM followers f
-        JOIN users u
-            ON u.user_id = f.following_id
-        WHERE f.follower_id = :userId
-        ORDER BY f.created_at
-        """, nativeQuery = true)
+    SELECT
+        u.user_id,
+        u.user_name
+    FROM users u
+    JOIN followers f
+        ON u.user_id = f.following_id
+    WHERE f.follower_id = :userId
+    ORDER BY f.created_at
+    """, nativeQuery = true)
     List<Object[]> findFollowingByUserId(
             @Param("userId") long userId
     );

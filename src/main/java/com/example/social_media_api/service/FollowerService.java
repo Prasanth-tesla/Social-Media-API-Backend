@@ -1,14 +1,14 @@
 package com.example.social_media_api.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
 
+import com.example.social_media_api.dto.FollowRequest;
 import com.example.social_media_api.dto.FollowerResponse;
-import com.example.social_media_api.dto.UserSummary;
 import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.entity.FollowerId;
 import com.example.social_media_api.repository.FollowerRepository;
@@ -25,54 +25,62 @@ public class FollowerService {
     private UserRepository userRepository;
 
     @Transactional
-    public Follower createFollower(Follower follower) {
+    public void createFollower(FollowRequest request) {
 
-        Follower savedFollower = followerRepository.save(follower);
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
 
-        return savedFollower;
+        Long authenticatedUserId =
+                (Long) authentication.getPrincipal();
+
+        FollowerId followerId =
+                new FollowerId(
+                        authenticatedUserId,
+                        request.getFollowingId()
+                );
+
+        Follower follower = new Follower();
+        follower.setId(followerId);
+
+        followerRepository.save(follower);
     }
     
     @Transactional
-    public boolean deleteFollower(long followerId, long followingId) {
+        public boolean deleteFollower(long followingId) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        Long authenticatedUserId =
+                (Long) authentication.getPrincipal();
 
         FollowerId followerKey =
-                new FollowerId(followerId, followingId);
+                new FollowerId(
+                        authenticatedUserId,
+                        followingId
+                );
 
         if (!followerRepository.existsById(followerKey)) {
-            return false;
+                return false;
         }
 
         followerRepository.deleteById(followerKey);
 
         return true;
-    }
+        }
 
     public List<FollowerResponse> getFollowers(long userId) {
 
         return followerRepository.findFollowersByUserId(userId)
                 .stream()
-                .map(row -> {
-
-                    LocalDate followCreatedAt =
-                        ((LocalDateTime) row[0])
-                                .toLocalDate();
-
-                    UserSummary user =
-                            new UserSummary(
-                                    ((Number) row[1]).longValue(),
-                                    (String) row[2],
-                                    ((Number) row[3]).longValue(),
-                                    ((Number) row[4]).longValue(),
-                                    ((Number) row[5]).longValue(),
-                                    ((LocalDateTime) row[6])
-                                        .toLocalDate()
-                            );
-
-                    return new FollowerResponse(
-                            followCreatedAt,
-                            user
-                    );
-                })
+                .map(row -> new FollowerResponse(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1]
+                ))
                 .toList();
     }
 
@@ -80,28 +88,10 @@ public class FollowerService {
 
         return followerRepository.findFollowingByUserId(userId)
                 .stream()
-                .map(row -> {
-
-                    LocalDate followCreatedAt =
-                            ((LocalDateTime) row[0])
-                                    .toLocalDate();
-
-                    UserSummary user =
-                            new UserSummary(
-                                    ((Number) row[1]).longValue(),
-                                    (String) row[2],
-                                    ((Number) row[3]).longValue(),
-                                    ((Number) row[4]).longValue(),
-                                    ((Number) row[5]).longValue(),
-                                    ((LocalDateTime) row[6])
-                                            .toLocalDate()
-                            );
-
-                    return new FollowerResponse(
-                            followCreatedAt,
-                            user
-                    );
-                })
+                .map(row -> new FollowerResponse(
+                        ((Number) row[0]).longValue(),
+                        (String) row[1]
+                ))
                 .toList();
     }
 }

@@ -1,25 +1,23 @@
 package com.example.social_media_api.dto;
 
-import java.time.LocalDate;
-
 public class FollowerResponse {
 
-    private LocalDate createdAt;
-    private UserSummary user;
+    private Long userId;
+    private String userName;
 
     public FollowerResponse(
-            LocalDate createdAt,
-            UserSummary user) {
+            Long userId,
+            String userName) {
 
-        this.createdAt = createdAt;
-        this.user = user;
+        this.userId = userId;
+        this.userName = userName;
     }
 
-    public LocalDate getCreatedAt() {
-        return createdAt;
+    public Long getUserId() {
+        return userId;
     }
 
-    public UserSummary getUser() {
-        return user;
+    public String getUserName() {
+        return userName;
     }
 }

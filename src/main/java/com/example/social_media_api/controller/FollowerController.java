@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.social_media_api.dto.ApiResponse;
+import com.example.social_media_api.dto.FollowRequest;
 import com.example.social_media_api.dto.FollowerResponse;
-import com.example.social_media_api.entity.Follower;
 import com.example.social_media_api.service.FollowerService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,34 +21,55 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/followers")
+@RequestMapping("/api/follows")
 public class FollowerController {
     
     @Autowired
     private FollowerService followerService;
 
     @PostMapping
-    public Follower creatFollowers(@RequestBody Follower follower) {
-        return followerService.createFollower(follower);
+    public ResponseEntity<ApiResponse<Void>> createFollower(
+        @RequestBody FollowRequest request) {
+
+        followerService.createFollower(request);
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(
+                ApiResponse.message(
+                    HttpStatus.CREATED,
+                    "Followed successfully"
+                )
+            );
     }
     
     @DeleteMapping
-    public ResponseEntity<String> deleteFollower(
-        @RequestParam long followerId,
-        @RequestParam long followingId) {
+        public ResponseEntity<ApiResponse<Void>> deleteFollower(
+                @RequestParam long followingId) {
 
-        boolean deleted = followerService.deleteFollower(followerId, followingId);
+        boolean deleted =
+                followerService.deleteFollower(followingId);
 
         if (!deleted) {
-            return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body("Follow relationship not found");
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(
+                        ApiResponse.message(
+                                HttpStatus.NOT_FOUND,
+                                "Follow relationship not found"
+                        )
+                        );
         }
 
-        return ResponseEntity.ok("Unfollowed successfully");
-    }
+        return ResponseEntity.ok(
+                ApiResponse.message(
+                        HttpStatus.OK,
+                        "Unfollowed successfully"
+                )
+        );
+        }
 
-    @GetMapping
+    @GetMapping("/followers")
     public ResponseEntity<ApiResponse<List<FollowerResponse>>> getFollowers(
             @RequestParam long userId) {
 
